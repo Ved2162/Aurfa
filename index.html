@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#B7D7B8">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>AURFA - Smart Rooftop Farming Solutions</title>
+    <meta name="description" content="AI-powered rooftop farming solutions with sunlight analysis, crop recommendations, and yield prediction">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
+    
+    <style>
+        :root {
+            --primary-color: #B7D7B8;      /* Soft Sage Green */
+            --primary-dark: #4F6367;       /* Deep Green-Gray */
+            --primary-light: #eef7ee;      /* Very Light Sage */
+            --secondary-color: #F7D695;    /* Soft Sandy Gold */
+            --accent-color: #E0AFA0;       /* Soft Terracotta */
+            --dark-color: #343A40;         /* Charcoal Gray for Text */
+            --light-color: #f8f9fa;        /* Off-White */
+            --text-color: #343A40;         /* Charcoal Gray */
+            --text-light: #6C757D;         /* Muted Gray */
+            --white: #ffffff;
+            --shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+            --transition: all 0.3s ease-in-out;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-color);
+            background-color: var(--white);
+            line-height: 1.7;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        .navbar {
+            transition: var(--transition);
+            background-color: transparent;
+        }
+
+        .navbar.scrolled {
+            background-color: rgba(255, 255, 255, 0.98) !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .navbar-light .navbar-nav .nav-link {
+            color: var(--dark-color);
+        }
+
+        .navbar.scrolled .navbar-nav .nav-link {
+            color: var(--dark-color);
+        }
+
+        .navbar .nav-link {
+             color: var(--white);
+             font-weight: 500;
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--dark-color);
+        }
+        
+        .navbar.scrolled .logo {
+            color: var(--dark-color);
+        }
+        
+        .navbar .logo {
+            color: var(--white);
+        }
+
+        .logo img {
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        .nav-link {
+            position: relative;
+            padding-bottom: 8px;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background-color: var(--secondary-color);
+            transition: var(--transition);
+        }
+
+        .nav-link:hover::after {
+            width: 60%;
+        }
+        
+        .navbar.scrolled .nav-link::after {
+            background-color: var(--primary-color);
+        }
+
+        .hero {
+            height: 100vh;
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-video-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -2;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(79, 99, 103, 0.6);
+            z-index: -1;
+        }
+
+        .hero-content h1 {
+            font-size: 3.8rem;
+            font-weight: 700;
+            color: var(--white);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .hero-content .lead {
+            font-size: 1.25rem;
+            color: rgba(255,255,255,0.9);
+            max-width: 600px;
+        }
+
+        @media (max-width: 768px) {
+            .hero-content h1 {
+                font-size: 2.8rem;
+            }
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: var(--dark-color);
+        }
+        .btn-primary:hover {
+            background-color: #a6c9a7;
+            border-color: #a6c9a7;
+            color: var(--dark-color);
+        }
+        
+        .btn.hero-cta {
+             background-color: var(--secondary-color);
+             border-color: var(--secondary-color);
+             color: var(--dark-color);
+             padding: 12px 30px;
+             font-weight: 600;
+             transition: var(--transition);
+        }
+        
+        .btn.hero-cta:hover {
+            background-color: #f5cf82;
+            border-color: #f5cf82;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .feature-card {
+            background: var(--white);
+            border: 1px solid #e9ecef;
+            border-radius: 15px;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(183, 215, 184, 0.4);
+            border-color: var(--primary-color);
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            color: var(--primary-dark);
+        }
+        
+        .section-header h2 {
+            position: relative;
+            display: inline-block;
+            padding-bottom: 15px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .section-header h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: var(--primary-color);
+            border-radius: 2px;
+        }
+
+        #how-it-works, .bg-light {
+            background-color: var(--light-color) !important;
+        }
+
+        .steps-container {
+            position: relative;
+        }
+        .steps-container::before {
+            content: '';
+            position: absolute;
+            left: 30px; 
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background-color: #e0e0e0;
+            z-index: 0;
+        }
+
+        .step-number {
+            width: 60px;
+            height: 60px;
+            background-color: var(--primary-color);
+            color: var(--dark-color);
+            font-size: 1.5rem;
+            font-weight: 600;
+            flex-shrink: 0;
+            z-index: 1;
+            box-shadow: 0 0 0 6px var(--light-color), 0 4px 6px rgba(0,0,0,0.05);
+        }
+        
+        .testimonial-card {
+            min-width: 350px;
+            scroll-snap-align: start;
+            border: 1px solid #e9ecef;
+            background-color: var(--white);
+        }
+
+        .testimonial-slider {
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none;
+        }
+
+        .testimonial-slider::-webkit-scrollbar {
+            display: none;
+        }
+
+        .cta-section {
+            background: linear-gradient(135deg, rgba(79, 99, 103, 0.9) 0%, rgba(96, 125, 130, 0.9) 100%),
+                        url('https://images.unsplash.com/photo-1534710961216-75c88202f43e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') no-repeat center center;
+            background-size: cover;
+            color: var(--white);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(79, 99, 103, 0.0);
+            z-index: 0;
+        }
+        
+        .cta-section .container {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .map-container {
+            height: 450px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+        
+        .demo-container {
+            border-radius: 15px !important;
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        .analysis-results {
+            background: var(--white);
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .yield-bar {
+            height: 12px;
+            background: #e9ecef;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .yield-progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-color), var(--secondary-color));
+            border-radius: 6px;
+        }
+
+        #benefits, #contact {
+            background-color: var(--white);
+        }
+
+        .benefits-image {
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .benefits-image:hover {
+            transform: scale(1.03) rotate(1deg);
+        }
+        
+        .accordion-button {
+            background-color: var(--primary-light);
+            color: var(--dark-color);
+        }
+        .accordion-button:not(.collapsed) {
+            color: var(--dark-color);
+            background-color: var(--primary-color);
+        }
+        
+        .accordion-button:focus {
+            box-shadow: 0 0 0 0.25rem rgba(183, 215, 184, 0.5);
+        }
+
+        .contact-info {
+            background: linear-gradient(135deg, var(--primary-dark), #607d82 100%);
+            box-shadow: var(--shadow);
+        }
+        
+        footer {
+            background-color: var(--primary-dark);
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 991.98px) {
+            .navbar {
+                background-color: rgba(255, 255, 255, 0.98) !important;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            }
+            .navbar .nav-link {
+                color: var(--dark-color) !important;
+                padding: 10px 0;
+            }
+            .navbar-collapse {
+                padding: 20px 0;
+                background-color: var(--white);
+                margin-top: 10px;
+                border-radius: 10px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            .hero {
+                height: auto;
+                padding: 120px 0 80px;
+            }
+            .hero-content h1 {
+                font-size: 2.2rem;
+                margin-top: 20px;
+            }
+            .hero-content .lead {
+                font-size: 1rem;
+            }
+            .hero-cta {
+                width: 100%;
+                margin-bottom: 30px;
+            }
+            
+            .feature-card {
+                margin-bottom: 20px;
+            }
+            
+            .steps-container::before {
+                left: 25px;
+            }
+            .step-number {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+            .step-content h3 {
+                font-size: 1.1rem;
+            }
+            
+            .demo-container .col-md-7, 
+            .demo-container .col-md-5 {
+                padding: 15px;
+            }
+            .map-container {
+                height: 300px;
+            }
+            
+            .testimonial-card {
+                min-width: 85%;
+            }
+            
+            .cta-section h2 {
+                font-size: 2.2rem;
+            }
+            
+            .contact-info {
+                margin-bottom: 30px;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .hero-content h1 {
+                font-size: 1.8rem;
+            }
+            .section-header h2 {
+                font-size: 1.8rem;
+            }
+            .feature-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 1.8rem;
+            }
+            
+            .analysis-results .row > div {
+                margin-bottom: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top py-3">
+        <div class="container">
+            <a class="navbar-brand logo" href="#">
+                <img src="Screenshot 2025-06-30 175336.png" alt="AURFA Logo" class="rounded-circle">
+                <span>AURFA</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item mx-2">
+                        <a class="nav-link" href="#features">Features</a>
+                    </li>
+                    <li class="nav-item mx-2">
+                        <a class="nav-link" href="#how-it-works">How It Works</a>
+                    </li>
+                    <li class="nav-item mx-2">
+                        <a class="nav-link" href="#benefits">Benefits</a>
+                    </li>
+                    <li class="nav-item mx-2">
+                        <a class="nav-link" href="#testimonials">Testimonials</a>
+                    </li>
+                    <li class="nav-item mx-2">
+                        <a class="nav-link" href="#contact">Contact</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <video playsinline autoplay muted loop class="hero-video-bg">
+            <source src="Generated video 1.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-7">
+                    <div class="hero-content">
+                        <h1 class="typewriter mb-4"></h1>
+                        <p class="lead mb-4">AI-powered urban farming solutions to maximize your rooftop's potential. Grow fresh, sustainable food right at home.</p>
+                        <button class="btn btn-lg hero-cta" onclick="scrollToHowItWorks()">Start Your Free Analysis <i class="fas fa-arrow-right ms-2"></i></button>
+                    </div>
+                </div>
+                 <div class="col-lg-5 d-none d-lg-block">
+                    <!-- This div is kept for layout consistency but is visually empty -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-5 bg-light">
+        <div class="container py-5">
+            <div class="section-header text-center mb-5">
+                <h2 class="display-5">Our Powerful Features</h2>
+                <p class="lead text-text-light">Everything you need for successful rooftop farming</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card p-4 h-100 text-center">
+                        <div class="feature-icon rounded-circle mx-auto mb-4">
+                            <i class="fas fa-sun"></i>
+                        </div>
+                        <h3>Sunlight AI</h3>
+                        <p class="text-muted">Our AI analyzes sunlight patterns to determine optimal plant placement for maximum growth.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card p-4 h-100 text-center">
+                        <div class="feature-icon rounded-circle mx-auto mb-4">
+                            <i class="fas fa-seedling"></i>
+                        </div>
+                        <h3>Crop Recommendations</h3>
+                        <p class="text-muted">Get personalized crop suggestions based on your rooftop's conditions and local climate.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card p-4 h-100 text-center">
+                        <div class="feature-icon rounded-circle mx-auto mb-4">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3>Yield Prediction</h3>
+                        <p class="text-muted">Accurate forecasts of your potential harvest based on historical data and current conditions.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card p-4 h-100 text-center">
+                        <div class="feature-icon rounded-circle mx-auto mb-4">
+                            <i class="fas fa-tint"></i>
+                        </div>
+                        <h3>Water Management</h3>
+                        <p class="text-muted">Smart irrigation recommendations to conserve water while keeping plants healthy.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="py-5">
+        <div class="container py-5">
+            <div class="section-header text-center mb-5">
+                <h2 class="display-5">How AURFA Works</h2>
+                <p class="lead text-text-light">Simple steps to transform your rooftop into a productive farm</p>
+            </div>
+            
+            <div class="row mb-5">
+                <div class="col-lg-8 mx-auto">
+                    <div class="steps-container position-relative">
+                        <div class="step d-flex mb-5">
+                            <div class="step-number rounded-circle d-flex align-items-center justify-content-center me-4">1</div>
+                            <div class="step-content">
+                                <h3>Upload Your Rooftop Details</h3>
+                                <p class="text-muted">Provide basic information about your rooftop space, location, and dimensions.</p>
+                            </div>
+                        </div>
+                        <div class="step d-flex mb-5">
+                            <div class="step-number rounded-circle d-flex align-items-center justify-content-center me-4">2</div>
+                            <div class="step-content">
+                                <h3>Get Automated Analysis</h3>
+                                <p class="text-muted">Our AI processes your data to create a customized farming plan.</p>
+                            </div>
+                        </div>
+                        <div class="step d-flex mb-5">
+                            <div class="step-number rounded-circle d-flex align-items-center justify-content-center me-4">3</div>
+                            <div class="step-content">
+                                <h3>Receive Recommendations</h3>
+                                <p class="text-muted">Get detailed reports on ideal crops, planting layout, and care instructions.</p>
+                            </div>
+                        </div>
+                        <div class="step d-flex">
+                            <div class="step-number rounded-circle d-flex align-items-center justify-content-center me-4">4</div>
+                            <div class="step-content">
+                                <h3>Monitor & Optimize</h3>
+                                <p class="text-muted">Track your farm's progress and get ongoing optimization suggestions.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="demo-container bg-white rounded shadow-lg overflow-hidden">
+                        <div class="row g-0">
+                            <div class="col-md-7">
+                                <div class="map-container">
+                                    <div id="map"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-5 p-4 d-flex flex-column justify-content-center">
+                                <div class="mb-3">
+                                    <label for="rooftop-area" class="form-label fw-bold">Rooftop Area (sq ft)</label>
+                                    <input type="number" class="form-control" id="rooftop-area" min="50" max="5000" value="200">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="sunlight-hours" class="form-label fw-bold">Daily Sunlight Hours</label>
+                                    <input type="number" class="form-control" id="sunlight-hours" min="2" max="12" value="6">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="location" class="form-label fw-bold">Your Location</label>
+                                    <input type="text" class="form-control" id="location" placeholder="Enter your city" value="Bangalore">
+                                </div>
+                                <button id="analyze-btn" class="btn btn-primary w-100 py-2 mb-4">Analyze My Rooftop</button>
+                                <div class="weather-display bg-light p-3 rounded text-center">
+                                    <h4 class="h6 text-muted mb-2">Current Weather</h4>
+                                    <div id="weather-data" class="d-flex align-items-center justify-content-center">
+                                        <div class="weather-icon me-3 text-secondary fs-2" style="color: var(--secondary-color) !important;"><i class="fas fa-cloud-sun"></i></div>
+                                        <div class="weather-details text-start">
+                                            <div class="temp fs-3 fw-bold lh-1">24°C</div>
+                                            <div class="conditions text-muted">Partly Cloudy</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="analysis-results" class="analysis-results mt-5 p-4 p-lg-5"></div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section id="benefits" class="py-5">
+        <div class="container py-5">
+            <div class="section-header text-center mb-5">
+                <h2 class="display-5">Why Choose AURFA</h2>
+            </div>
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <div class="benefit-item d-flex align-items-center mb-4">
+                        <div class="me-4 fs-2" style="color: var(--primary-color);">
+                            <i class="fas fa-leaf"></i>
+                        </div>
+                        <div>
+                            <h3 class="h5 fw-bold">Sustainable Living</h3>
+                            <p class="text-muted mb-0">Reduce your carbon footprint and contribute to urban greening.</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item d-flex align-items-center mb-4">
+                        <div class="me-4 fs-2" style="color: var(--primary-color);">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div>
+                            <h3 class="h5 fw-bold">Cost Effective</h3>
+                            <p class="text-muted mb-0">Grow your own food and save on grocery bills.</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item d-flex align-items-center mb-4">
+                        <div class="me-4 fs-2" style="color: var(--primary-color);">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <div>
+                            <h3 class="h5 fw-bold">Healthier Food</h3>
+                            <p class="text-muted mb-0">Fresh, organic produce right from your rooftop.</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item d-flex align-items-center">
+                        <div class="me-4 fs-2" style="color: var(--primary-color);">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <div>
+                            <h3 class="h5 fw-bold">Data-Driven</h3>
+                            <p class="text-muted mb-0">Make informed decisions with our AI-powered insights.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <img src="midMian.jpg" 
+                         alt="Benefits of rooftop farming" class="img-fluid benefits-image">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="py-5 bg-light">
+        <div class="container py-5">
+            <div class="section-header text-center mb-5">
+                <h2 class="display-5">What Our Users Say</h2>
+            </div>
+            <div class="testimonial-slider d-flex overflow-auto pb-4">
+                <div class="testimonial-card p-4 me-4 rounded shadow-sm">
+                    <div class="testimonial-content mb-4">
+                        <div class="rating text-secondary mb-3" style="color: var(--secondary-color) !important;">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        </div>
+                        <p class="fst-italic">"AURFA transformed my barren rooftop into a thriving vegetable garden. The crop recommendations were spot on!"</p>
+                    </div>
+                    <div class="testimonial-author d-flex align-items-center">
+                        <img src="https://randomuser.me/api/portraits/women/32.jpg" alt="Priya K." class="rounded-circle me-3" width="50">
+                        <div>
+                            <h5 class="mb-0">Priya K.</h5>
+                            <small class="text-muted">Mumbai</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card p-4 me-4 rounded shadow-sm">
+                    <div class="testimonial-content mb-4">
+                        <div class="rating text-secondary mb-3" style="color: var(--secondary-color) !important;">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        </div>
+                        <p class="fst-italic">"The sunlight analysis helped me position my plants perfectly. My yield has doubled since using AURFA."</p>
+                    </div>
+                    <div class="testimonial-author d-flex align-items-center">
+                        <img src="https://randomuser.me/api/portraits/men/45.jpg" alt="Rahul S." class="rounded-circle me-3" width="50">
+                        <div>
+                            <h5 class="mb-0">Rahul S.</h5>
+                            <small class="text-muted">Bangalore</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card p-4 rounded shadow-sm">
+                    <div class="testimonial-content mb-4">
+                        <div class="rating text-secondary mb-3" style="color: var(--secondary-color) !important;">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                        </div>
+                        <p class="fst-italic">"As a beginner, I found the step-by-step guidance invaluable. Now I have fresh herbs all year round!"</p>
+                    </div>
+                    <div class="testimonial-author d-flex align-items-center">
+                        <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Ananya M." class="rounded-circle me-3" width="50">
+                        <div>
+                            <h5 class="mb-0">Ananya M.</h5>
+                            <small class="text-muted">Delhi</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="py-5 bg-white">
+        <div class="container py-5">
+            <div class="section-header text-center mb-5">
+                <h2 class="display-5">Frequently Asked Questions</h2>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="accordion" id="faqAccordion">
+                        <div class="accordion-item mb-3 border rounded">
+                            <h2 class="accordion-header" id="headingOne">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                                    How accurate is the rooftop analysis?
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body bg-white">
+                                    Our AI algorithms have been trained on thousands of rooftop farms across different climates and regions. The analysis is about 92% accurate based on user feedback. For even more precise results, you can provide additional measurements and photos of your space.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item mb-3 border rounded">
+                            <h2 class="accordion-header" id="headingTwo">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+                                    Do I need any special equipment to get started?
+                                </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body bg-white">
+                                    No special equipment is required to begin. Our basic analysis works with just your rooftop dimensions and location. However, for ongoing monitoring, we recommend our optional sensor kit that provides real-time data on sunlight, soil moisture, and temperature.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item mb-3 border rounded">
+                            <h2 class="accordion-header" id="headingThree">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">
+                                    Can AURFA help with organic pest control?
+                                </button>
+                            </h2>
+                            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body bg-white">
+                                    Yes! Our system includes a pest management module that suggests organic solutions based on the specific pests common in your area and the crops you're growing. We provide prevention tips and natural remedies to keep your plants healthy without chemicals.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item border rounded">
+                            <h2 class="accordion-header" id="headingFour">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour">
+                                    Is there a mobile app available?
+                                </button>
+                            </h2>
+                            <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body bg-white">
+                                    Currently, our web application is fully responsive and works great on mobile browsers. We're developing a dedicated mobile app with additional features that will be released later this year.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section with Background Image -->
+    <section class="py-5 cta-section position-relative overflow-hidden">
+        <div class="container py-5 position-relative z-index-1">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <h2 class="display-4 mb-4 fw-bold">Ready to Transform Your Rooftop?</h2>
+                    <p class="lead mb-5">Join thousands of urban farmers growing fresh, sustainable food right at home.</p>
+                    <button class="btn btn-light btn-lg px-5 hero-cta" onclick="scrollToHowItWorks()" style="background-color: var(--secondary-color); color: var(--dark-color);">Start Your Free Analysis</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-5">
+        <div class="container py-5">
+            <div class="section-header text-center mb-5">
+                <h2 class="display-5">Get In Touch</h2>
+                <p class="lead text-text-light">Have questions? We'd love to hear from you</p>
+            </div>
+            <div class="row">
+                <div class="col-lg-5 mb-4 mb-lg-0">
+                    <div class="contact-info text-white p-4 p-lg-5 rounded h-100">
+                        <div class="info-item d-flex align-items-center mb-4">
+                            <div class="me-3 fs-4"><i class="fas fa-envelope"></i></div>
+                            <div>
+                                <h5 class="h6">Email</h5>
+                                <p class="mb-0">aurfa2162@gmail.com</p>
+                            </div>
+                        </div>
+                        <div class="info-item d-flex align-items-center mb-4">
+                            <div class="me-3 fs-4"><i class="fas fa-phone"></i></div>
+                            <div>
+                                <h5 class="h6">Phone</h5>
+                                <p class="mb-0">+91 8780860456</p>
+                            </div>
+                        </div>
+                        <div class="info-item d-flex align-items-center mb-4">
+                            <div class="me-3 fs-4"><i class="fas fa-map-marker-alt"></i></div>
+                            <div>
+                                <h5 class="h6">Address</h5>
+                                <p class="mb-0">Ahmedabad, India</p>
+                            </div>
+                        </div>
+                        <div class="social-links mt-5">
+                            <a href="#" class="text-white me-3"><i class="fab fa-facebook-f fa-lg"></i></a>
+                            <a href="#" class="text-white me-3"><i class="fab fa-twitter fa-lg"></i></a>
+                            <a href="#" class="text-white me-3"><i class="fab fa-instagram fa-lg"></i></a>
+                            <a href="#" class="text-white"><i class="fab fa-linkedin-in fa-lg"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <form action="https://api.web3forms.com/submit" method="POST" class="contact-form bg-light p-4 p-lg-5 rounded shadow-sm">
+                        <input type="hidden" name="access_key" value="YOUR_ACCESS_KEY_HERE">
+                        <input type="checkbox" name="botcheck" style="display: none;">
+                        
+                        <div class="mb-4">
+                            <label for="name" class="form-label">Your Name</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="email" class="form-label">Your Email</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="subject" class="form-label">Subject</label>
+                            <input type="text" class="form-control" id="subject" name="subject">
+                        </div>
+                        <div class="mb-4">
+                            <label for="message" class="form-label">Your Message</label>
+                            <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 py-3">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-5 text-white">
+        <div class="container py-4">
+            <div class="row">
+                <div class="col-lg-4 mb-4 mb-lg-0">
+                    <div class="footer-logo d-flex align-items-center mb-3">
+                        <img src="" alt="" class="me-2 rounded-circle">
+                        <span class="fs-4 fw-bold">AURFA</span>
+                    </div>
+                    <p class="text-white-50">AI-powered rooftop farming solutions to maximize your urban agriculture potential.</p>
+                </div>
+                <div class="col-lg-2 col-md-4 col-6 mb-4 mb-md-0">
+                    <h5 class="mb-4" style="color: var(--secondary-color);">Product</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="#features" class="text-white-50 text-decoration-none">Features</a></li>
+                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">Pricing</a></li>
+                        <li><a href="#" class="text-white-50 text-decoration-none">Case Studies</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-4 col-6 mb-4 mb-md-0">
+                    <h5 class="mb-4" style="color: var(--secondary-color);">Resources</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">Blog</a></li>
+                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">Guides</a></li>
+                        <li><a href="#" class="text-white-50 text-decoration-none">Help Center</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-4 col-6 mb-4 mb-md-0">
+                    <h5 class="mb-4" style="color: var(--secondary-color);">Company</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">About Us</a></li>
+                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">Careers</a></li>
+                        <li><a href="contact.html" class="text-white-50 text-decoration-none">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-4 col-6">
+                    <h5 class="mb-4" style="color: var(--secondary-color);">Legal</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">Privacy</a></li>
+                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">Terms</a></li>
+                        <li><a href="#" class="text-white-50 text-decoration-none">Cookies</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4" style="border-color: var(--primary-color); opacity: 0.25;">
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start">
+                    
+                    <p class="mb-0 text-white-50">© 2023 AURFA. All rights reserved.</p>
+                    <p class="mb-0 text-white-50">create by<a href="https://ved2162-portfolio.netlify.app/"> Ved Prajapati</a> </p>                
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <div class="social-links">
+                        <a href="#" class="text-white-50 me-3"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-white-50 me-3"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-white-50 me-3"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-white-50"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Typed.js -->
+    <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
+    
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    
+    <script>
+        // Function to scroll to How It Works section.
+        // Moved to the global scope to be accessible by the `onclick` attributes in the HTML.
+        function scrollToHowItWorks() {
+            const howItWorksSection = document.getElementById('how-it-works');
+            howItWorksSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const navbar = document.querySelector('.navbar');
+            
+            // Navbar scroll effect
+            function handleScroll() {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+            }
+            
+            window.addEventListener('scroll', handleScroll);
+            handleScroll(); // Run on page load
+
+            // Typewriter effect
+            const typewriter = new Typed('.typewriter', {
+                strings: [
+                    "Maximize Your Urban Harvest",
+                    "AI-Powered Rooftop Farming",
+                    "Grow Fresh, Grow Local"
+                ],
+                typeSpeed: 50,
+                backSpeed: 30,
+                loop: true,
+                showCursor: true,
+                cursorChar: '|'
+            });
+
+            // Initialize map
+            function initMap() {
+                const map = L.map('map').setView([12.9716, 77.5946], 15);
+                
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(map);
+                
+                const rooftopCoords = [
+                    [12.9712, 77.5942],
+                    [12.9712, 77.5950],
+                    [12.9720, 77.5950],
+                    [12.9720, 77.5942]
+                ];
+                
+                const rooftopArea = L.polygon(rooftopCoords, {
+                    color: '#4F6367',
+                    fillColor: '#B7D7B8',
+                    fillOpacity: 0.3
+                }).addTo(map);
+                
+                L.marker([12.9716, 77.5946]).addTo(map)
+                    .bindPopup('Your rooftop location')
+                    .openPopup();
+                
+                map.fitBounds(rooftopArea.getBounds());
+            }
+            
+            initMap();
+
+            // Weather API simulation
+            async function fetchWeather(location = 'Bangalore') {
+                try {
+                    const weatherConditions = {
+                        'Bangalore': { temp: 24, conditions: 'Partly Cloudy', icon: 'fa-cloud-sun' },
+                        'Mumbai': { temp: 28, conditions: 'Humid', icon: 'fa-cloud-rain' },
+                        'Delhi': { temp: 30, conditions: 'Sunny', icon: 'fa-sun' },
+                        'Chennai': { temp: 32, conditions: 'Hot', icon: 'fa-sun' },
+                        'Kolkata': { temp: 27, conditions: 'Rainy', icon: 'fa-cloud-showers-heavy' }
+                    };
+                    
+                    const weatherData = weatherConditions[location] || weatherConditions['Bangalore'];
+                    
+                    const weatherElement = document.getElementById('weather-data');
+                    weatherElement.querySelector('.temp').textContent = `${weatherData.temp}°C`;
+                    weatherElement.querySelector('.conditions').textContent = weatherData.conditions;
+                    weatherElement.querySelector('.weather-icon i').className = `fas ${weatherData.icon}`;
+                    
+                    return weatherData;
+                } catch (error) {
+                    console.error('Error fetching weather:', error);
+                    return null;
+                }
+            }
+            
+            fetchWeather();
+
+            // Rooftop analysis functionality
+            const analyzeBtn = document.getElementById('analyze-btn');
+            analyzeBtn.addEventListener('click', async function() {
+                this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Analyzing...';
+                this.disabled = true;
+                
+                const rooftopArea = parseInt(document.getElementById('rooftop-area').value);
+                const sunlightHours = parseInt(document.getElementById('sunlight-hours').value);
+                const location = document.getElementById('location').value.trim() || 'Bangalore';
+                
+                const weatherData = await fetchWeather(location);
+                
+                setTimeout(() => {
+                    const analysisResults = analyzeRooftop(rooftopArea, sunlightHours, weatherData);
+                    displayResults(analysisResults);
+                    
+                    this.textContent = 'Re-analyze My Rooftop';
+                    this.disabled = false;
+                }, 1500);
+            });
+            
+            function analyzeRooftop(area, sunlightHours, weatherData) {
+                const allPlants = [
+                    { name: 'Tomatoes', sunReq: 6, waterReq: 'Medium', spaceReq: 2, yield: 10, season: 'All', icon: 'fa-pepper-hot' },
+                    { name: 'Peppers', sunReq: 6, waterReq: 'Medium', spaceReq: 1.5, yield: 8, season: 'Summer', icon: 'fa-pepper-hot' },
+                    { name: 'Spinach', sunReq: 4, waterReq: 'High', spaceReq: 1, yield: 5, season: 'Winter', icon: 'fa-leaf' },
+                    { name: 'Basil', sunReq: 5, waterReq: 'Medium', spaceReq: 0.5, yield: 3, season: 'All', icon: 'fa-seedling' },
+                    { name: 'Mint', sunReq: 4, waterReq: 'High', spaceReq: 1, yield: 4, season: 'All', icon: 'fa-seedling' },
+                    { name: 'Okra', sunReq: 8, waterReq: 'Medium', spaceReq: 2, yield: 7, season: 'Summer', icon: 'fa-seedling' },
+                    { name: 'Lettuce', sunReq: 4, waterReq: 'High', spaceReq: 1, yield: 6, season: 'Winter', icon: 'fa-leaf' },
+                    { name: 'Eggplant', sunReq: 6, waterReq: 'Medium', spaceReq: 2, yield: 9, season: 'Summer', icon: 'fa-pepper-hot' }
+                ];
+                
+                const suitablePlants = allPlants.filter(plant => sunlightHours >= plant.sunReq);
+                suitablePlants.sort((a, b) => b.yield - a.yield);
+                
+                const plantsWithQuantity = suitablePlants.map(plant => ({
+                    ...plant,
+                    quantity: Math.floor(area / plant.spaceReq),
+                    totalYield: Math.floor(area / plant.spaceReq) * plant.yield
+                }));
+                
+                const recommendations = plantsWithQuantity.slice(0, 4);
+                const totalYield = recommendations.reduce((sum, plant) => sum + plant.totalYield, 0);
+                
+                return {
+                    location: location,
+                    rooftopArea: area,
+                    sunlightHours: sunlightHours,
+                    weather: weatherData,
+                    recommendations: recommendations,
+                    totalYield: totalYield,
+                    analysisDate: new Date().toLocaleDateString()
+                };
+            }
+            
+            function displayResults(results) {
+                const yieldPercentage = Math.min(100, Math.floor((results.totalYield / (results.rooftopArea * 5)) * 100)); // Normalized yield
+                const resultsContainer = document.getElementById('analysis-results');
+                
+                resultsContainer.innerHTML = `
+                    <div class="text-center mb-4">
+                        <h3 style="color: var(--dark-color) !important;">Your Rooftop Analysis Results</h3>
+                        <p class="text-muted">Generated on ${results.analysisDate} for ${results.location}</p>
+                    </div>
+                    
+                    <div class="row g-4">
+                        ${results.recommendations.map(plant => `
+                            <div class="col-md-6 col-lg-3">
+                                <div class="p-3 bg-light rounded h-100 text-center">
+                                    <h4 class="h5" style="color: var(--dark-color);"><i class="fas ${plant.icon} me-2"></i>${plant.name}</h4>
+                                    <p class="small text-muted mb-2">Ideal for ${results.sunlightHours} hrs of sun.</p>
+                                    <div class="mt-3 pt-3 border-top">
+                                        <h5 class="h6 text-dark">Estimated Yield</h5>
+                                        <p class="fw-bold fs-4" style="color: var(--accent-color) !important;">~${plant.totalYield} kg</p>
+                                        <p class="small text-muted mb-0">from ${plant.quantity} plants</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div class="mt-5 p-4 bg-light rounded text-center">
+                        <h4 style="color: var(--dark-color);"><i class="fas fa-chart-pie me-2"></i>Total Potential Yield</h4>
+                        <p class="lead">Your ${results.rooftopArea} sq ft rooftop could produce approximately:</p>
+                        <h2 class="my-3" style="color: var(--dark-color); font-weight: 700;">${results.totalYield} kg of fresh produce</h2>
+                        
+                        <div class="mt-4 mx-auto" style="max-width: 400px;">
+                            <h5 class="text-dark h6">Yield Potential</h5>
+                            <div class="yield-bar mb-2">
+                                <div class="yield-progress" style="width: ${yieldPercentage}%"></div>
+                            </div>
+                            <p class="text-muted">${yieldPercentage}% of maximum potential for your space</p>
+                        </div>
+                    </div>
+                `;
+                
+                resultsContainer.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    </script>
+</body>
+</html>
