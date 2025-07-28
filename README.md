@@ -2,8 +2,6 @@
 
 AURFA (AI Urban Rooftop Farming Advisor) is a web-based application that helps users transform their unused rooftops into productive green spaces. The platform leverages AI and APIs to analyze rooftop space, sunlight, weather, and other conditions to recommend the most suitable crops for urban farming.
 
-[![Netlify Status](https://aurfa.netlify.app)]
-
 <p align="center">
   <img src="assets/images/logo.png" alt="AURFA Logo" width="200"/>
 </p>
