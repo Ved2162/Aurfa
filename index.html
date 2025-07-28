@@ -18,10 +18,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""/>
 
-    <!-- Your Custom CSS File -->
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-firestore.js"></script>
+
+    <!-- Your Custom CSS Files -->
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="analysis.css">
 </head>
 <body>
     <!-- Navigation -->
@@ -51,10 +59,66 @@
                     <li class="nav-item mx-2">
                         <a class="nav-link" href="#contact">Contact</a>
                     </li>
+                    <li class="nav-item mx-2">
+                        <button class="btn btn-outline-light" id="authButton" data-bs-toggle="modal" data-bs-target="#authModal">
+                            Sign In
+                        </button>
+                    </li>
                 </ul>
             </div>
         </div>
     </nav>
+
+    <!-- Authentication Modal -->
+    <div class="modal fade" id="authModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="authModalLabel">Sign In</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="auth-tabs">
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="signin-tab" data-bs-toggle="tab" data-bs-target="#signin" type="button">Sign In</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="signup-tab" data-bs-toggle="tab" data-bs-target="#signup" type="button">Sign Up</button>
+                            </li>
+                        </ul>
+                        <div class="tab-content mt-3">
+                            <div class="tab-pane fade show active" id="signin">
+                                <form id="signinForm">
+                                    <div class="mb-3">
+                                        <input type="email" class="form-control" placeholder="Email" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <input type="password" class="form-control" placeholder="Password" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100">Sign In</button>
+                                </form>
+                            </div>
+                            <div class="tab-pane fade" id="signup">
+                                <form id="signupForm">
+                                    <div class="mb-3">
+                                        <input type="email" class="form-control" placeholder="Email" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <input type="password" class="form-control" placeholder="Password" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <input type="password" class="form-control" placeholder="Confirm Password" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100">Sign Up</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Hero Section -->
     <section class="hero">
@@ -175,6 +239,17 @@
                         <div class="row g-0">
                             <div class="col-md-7">
                                 <div class="map-container">
+                                    <div class="map-search mb-3">
+                                        <div class="position-relative">
+                                            <div class="input-group">
+                                                <input type="text" id="map-search-input" class="form-control" placeholder="Search location..." autocomplete="off">
+                                                <button class="btn btn-primary" id="map-search-btn" type="button">
+                                                    <i class="fas fa-search"></i> Search
+                                                </button>
+                                            </div>
+                                            <div id="search-suggestions" class="search-suggestions"></div>
+                                        </div>
+                                    </div>
                                     <div id="map"></div>
                                 </div>
                             </div>
@@ -208,7 +283,72 @@
                 </div>
             </div>
             
-            <div id="analysis-results" class="analysis-results mt-5 p-4 p-lg-5"></div>
+            <div id="analysis-results" class="analysis-results mt-5">
+                <!-- Analysis Results Content -->
+                <div class="container">
+                    <div class="row">
+                        <!-- Sunlight Analysis -->
+                        <div class="col-md-6 mb-4">
+                            <div class="analysis-card h-100">
+                                <div class="analysis-icon">
+                                    <i class="fas fa-sun fa-2x"></i>
+                                </div>
+                                <h4>Sunlight Analysis</h4>
+                                <div class="analysis-content" id="sunlight-result">
+                                    <!-- Content will be populated dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Soil Condition -->
+                        <div class="col-md-6 mb-4">
+                            <div class="analysis-card h-100">
+                                <div class="analysis-icon">
+                                    <i class="fas fa-seedling fa-2x"></i>
+                                </div>
+                                <h4>Recommended Crops</h4>
+                                <div class="analysis-content" id="crops-result">
+                                    <!-- Content will be populated dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Water Requirements -->
+                        <div class="col-md-6 mb-4">
+                            <div class="analysis-card h-100">
+                                <div class="analysis-icon">
+                                    <i class="fas fa-tint fa-2x"></i>
+                                </div>
+                                <h4>Water Requirements</h4>
+                                <div class="analysis-content" id="water-result">
+                                    <!-- Content will be populated dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Yield Prediction -->
+                        <div class="col-md-6 mb-4">
+                            <div class="analysis-card h-100">
+                                <div class="analysis-icon">
+                                    <i class="fas fa-chart-line fa-2x"></i>
+                                </div>
+                                <h4>Yield Prediction</h4>
+                                <div class="analysis-content" id="yield-result">
+                                    <!-- Content will be populated dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Crop Recommendations Section -->
+                    <div class="crop-recommendations mt-5">
+                        <h3 class="text-center mb-4">Recommended Crops</h3>
+                        <div class="row" id="crop-recommendations">
+                            <!-- Crop cards will be added here dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -534,7 +674,12 @@
     <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
     
     <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""></script>
+
+    <!-- Configuration -->
+    <script src="config.js"></script>
 
     <!-- Your Custom JS File -->
     <script src="script.js"></script>

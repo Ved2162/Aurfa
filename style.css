@@ -286,6 +286,76 @@ body {
     border-radius: 15px;
     overflow: hidden;
     box-shadow: var(--shadow);
+    position: relative;
+    z-index: 1;
+}
+
+.map-search {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    z-index: 1000;
+    max-width: 500px;
+    margin: auto;
+}
+
+.map-search .input-group {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    padding: 5px;
+}
+
+.search-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 5px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
+
+.search-suggestions.active {
+    display: block;
+}
+
+.suggestion-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s;
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.suggestion-item:hover {
+    background-color: #f8f9fa;
+}
+
+.suggestion-item .suggestion-main {
+    font-weight: 500;
+    color: #333;
+}
+
+.suggestion-item .suggestion-secondary {
+    font-size: 0.85em;
+    color: #6c757d;
+    margin-top: 2px;
+}
+
+#map {
+    height: 100%;
+    width: 100%;
+    z-index: 1;
 }
 
 .demo-container {

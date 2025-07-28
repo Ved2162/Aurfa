@@ -236,107 +236,10 @@ function initTypewriter() {
     });
 }
 
-// Debounce function to limit API calls
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
-
-// Handle location suggestions
-async function fetchLocationSuggestions(query) {
-    if (!query || query.length < 2) {
-        document.getElementById('search-suggestions').classList.remove('active');
-        return;
-    }
-
-    try {
-        const url = `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(query)}&key=${CONFIG.OPENCAGE_API_KEY}&limit=5`;
-        const response = await fetch(url);
-        const data = await response.json();
-        
-        const suggestionsDiv = document.getElementById('search-suggestions');
-        
-        if (data.results && data.results.length > 0) {
-            const suggestions = data.results.map(result => `
-                <div class="suggestion-item" data-lat="${result.geometry.lat}" data-lng="${result.geometry.lng}">
-                    <div class="suggestion-main">${result.formatted.split(',')[0]}</div>
-                    <div class="suggestion-secondary">${result.formatted.split(',').slice(1).join(',').trim()}</div>
-                </div>
-            `).join('');
-            
-            suggestionsDiv.innerHTML = suggestions;
-            suggestionsDiv.classList.add('active');
-
-            // Add click handlers to suggestions
-            const suggestionItems = suggestionsDiv.getElementsByClassName('suggestion-item');
-            Array.from(suggestionItems).forEach(item => {
-                item.addEventListener('click', () => {
-                    const lat = parseFloat(item.dataset.lat);
-                    const lng = parseFloat(item.dataset.lng);
-                    document.getElementById('map-search-input').value = item.querySelector('.suggestion-main').textContent;
-                    suggestionsDiv.classList.remove('active');
-                    updateMapLocation(lat, lng, item.querySelector('.suggestion-main').textContent);
-                });
-            });
-        } else {
-            suggestionsDiv.classList.remove('active');
-        }
-    } catch (error) {
-        console.error('Error fetching suggestions:', error);
-    }
-}
-
-// Update map location
-function updateMapLocation(lat, lng, locationName) {
-    map.setView([lat, lng], 15);
-    marker.setLatLng([lat, lng]);
-    document.getElementById('location').value = locationName;
-    fetchWeather(lat, lng);
-}
-
-// Search for a location
-async function searchLocation(query) {
-    try {
-        const url = `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(query)}&key=${CONFIG.OPENCAGE_API_KEY}`;
-        const response = await fetch(url);
-        const data = await response.json();
-        
-        if (data.results && data.results.length > 0) {
-            const result = data.results[0];
-            const { lat, lng } = result.geometry;
-            
-            // Update map and marker
-            map.setView([lat, lng], 15);
-            marker.setLatLng([lat, lng]);
-            
-            // Update location input
-            document.getElementById('location').value = result.formatted;
-            
-            // Get weather for the location
-            await fetchWeather(lat, lng);
-            
-            return true;
-        }
-        return false;
-    } catch (error) {
-        console.error('Error searching location:', error);
-        return false;
-    }
-}
-
 // Setup event listeners
 function setupEventListeners() {
     const navbar = document.querySelector('.navbar');
     const analyzeBtn = document.getElementById('analyze-btn');
-    const searchInput = document.getElementById('map-search-input');
-    const searchBtn = document.getElementById('map-search-btn');
 
     // Navbar scroll effect
     function handleScroll() {
@@ -349,55 +252,6 @@ function setupEventListeners() {
 
     window.addEventListener('scroll', handleScroll);
     handleScroll();
-
-    // Search functionality
-    if (searchBtn && searchInput) {
-        const handleSearch = async () => {
-            const query = searchInput.value.trim();
-            if (!query) return;
-
-            searchBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
-            searchBtn.disabled = true;
-
-            try {
-                const success = await searchLocation(query);
-                if (!success) {
-                    alert('Location not found. Please try a different search term.');
-                }
-                document.getElementById('search-suggestions').classList.remove('active');
-            } catch (error) {
-                console.error('Search error:', error);
-                alert('An error occurred while searching. Please try again.');
-            } finally {
-                searchBtn.innerHTML = '<i class="fas fa-search"></i> Search';
-                searchBtn.disabled = false;
-            }
-        };
-
-        // Add debounced input handler for suggestions
-        const debouncedFetchSuggestions = debounce((value) => {
-            fetchLocationSuggestions(value);
-        }, 300);
-
-        searchInput.addEventListener('input', (e) => {
-            debouncedFetchSuggestions(e.target.value.trim());
-        });
-
-        // Close suggestions when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.map-search')) {
-                document.getElementById('search-suggestions').classList.remove('active');
-            }
-        });
-
-        searchBtn.addEventListener('click', handleSearch);
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                handleSearch();
-            }
-        });
-    }
 
     if (analyzeBtn) {
         analyzeBtn.addEventListener('click', async function() {
